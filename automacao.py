@@ -1,9 +1,32 @@
 import PySimpleGUI as sg
 from playwright.sync_api import sync_playwright as playwright
-import pyautogui, filtro, time, automacao_baixar, os, requests
+import pyautogui, filtro, time, os, requests, organiza_pasta, limpar_txts
 
 # Função para simular a combinação de teclas "ctrl+shift+i"
 from playwright.sync_api import sync_playwright
+
+import os
+import shutil
+
+import requests
+import os
+
+def criar_pasta_videos_baixados():
+    try:
+        # Caminho específico onde será criada a pasta Pasta_videos_baixados
+        pasta_videos_baixados = r'C:\Users\bruno\OneDrive\Área de Trabalho\rafael_automacao\Pasta_videos_baixados'
+
+        if not os.path.exists(pasta_videos_baixados):
+            os.makedirs(pasta_videos_baixados)
+            print("Pasta Pasta_videos_baixados criada com sucesso!")
+        else:
+            print("A pasta Pasta_videos_baixados já existe.")
+
+        return pasta_videos_baixados
+
+    except Exception as e:
+        print("Erro ao criar a pasta Pasta_videos_baixados:", e)
+        return None
 
 def download_videos():
     arquivo_videos_url = "videos_url.txt"
@@ -62,6 +85,62 @@ def download_videos():
     print("Todos os vídeos foram baixados com sucesso.")
 
 
+def download_videos():
+    arquivo_videos_url = "videos_url.txt"
+    arquivo_automacao = "automacao.txt"
+    pasta_destino = "C:/Users/bruno/OneDrive/Área de Trabalho/rafael_automacao/Pasta_videos_baixados"
+
+    # Verificar se o arquivo videos_url.txt existe
+    if not os.path.exists(arquivo_videos_url):
+        print("Arquivo videos_url.txt não encontrado.")
+        return
+
+    # Verificar se o arquivo automacao.txt existe
+    if not os.path.exists(arquivo_automacao):
+        print("Arquivo automacao.txt não encontrado.")
+        return
+
+    # Criar a pasta de destino se não existir
+    if not os.path.exists(pasta_destino):
+        try:
+            os.makedirs(pasta_destino)
+            print(f"Pasta {pasta_destino} criada com sucesso.")
+        except OSError as e:
+            print(f"Erro ao criar pasta {pasta_destino}: {e}")
+            return
+
+    # Ler os links de download do arquivo automacao.txt e fazer tratamento
+    with open(arquivo_automacao, 'r', encoding='utf-8') as arquivo_automacao:
+        links_download = [link.strip() for link in arquivo_automacao.readlines() if link.strip()]
+
+    # Ler os links do arquivo videos_url.txt e fazer o download dos vídeos
+    with open(arquivo_videos_url, 'r', encoding='utf-8') as arquivo_videos:
+        linhas = arquivo_videos.readlines()
+
+        for i, linha in enumerate(linhas):
+            url, _, nome_video = linha.strip().split(';')
+            nome_video = nome_video.replace("</a>", "").strip()
+
+            try:
+                # Verificar se a URL de download não está vazia
+                if links_download[i].strip():
+                    print(f"URL de download: {links_download[i].strip()}")
+                    # Fazer o download do vídeo
+                    resposta = requests.get(links_download[i].strip())
+                    if resposta.status_code == 200:
+                        caminho_destino = os.path.join(pasta_destino, f"{nome_video}.mp4")
+                        with open(caminho_destino, 'wb') as arquivo_destino:
+                            arquivo_destino.write(resposta.content)
+                        print(f"Download do vídeo {nome_video} concluído.")
+                    else:
+                        print(f"Falha ao fazer o download do vídeo {nome_video}.")
+                else:
+                    print(f"URL de download vazia para o vídeo {nome_video}. Pulando download.")
+            except Exception as e:
+                print(f"Erro ao fazer o download do vídeo {nome_video}: {e}")
+
+    print("Todos os vídeos foram baixados com sucesso.")
+
 
 def abrir_links_finais():
     arquivo_videos_url = "videos_url.txt"
@@ -96,23 +175,29 @@ def abrir_links_finais():
                     pyautogui.press("delete")
                     pyautogui.hotkey("alt","tab")
                     simulate_ctrl_shift_i()
-                time.sleep(5)
+                time.sleep(2)
                 simulate_ctrl_shift_i()
-                time.sleep(3)
+                time.sleep(2)
                 simulate_ctrl_shift_i()
-                time.sleep(3)
+                time.sleep(2)
                 pyautogui.hotkey("ctrl", "f")
                 pyautogui.write("video-react-video")
                 pyautogui.press("tab")
                 pyautogui.press("enter")
+                pyautogui.press("enter")
+                pyautogui.press("tab")
+                pyautogui.press("tab")
+                pyautogui.press("tab")
                 pyautogui.hotkey("ctrl", "c")
                 pyautogui.hotkey("alt", "tab")
                 pyautogui.hotkey("ctrl","v")
+                pyautogui.press("enter")
+                pyautogui.press("enter")
                 pyautogui.hotkey("ctrl","s")
                 pyautogui.hotkey("alt","tab")
+            download_videos()
         # Fechar o navegador
         browser.close()
-
 
 
 def abrir_urls():
@@ -162,7 +247,7 @@ def abrir_urls():
                 pyautogui.press("enter")
                 pyautogui.hotkey("alt", "tab")
 
-                for i in range(0, 15):
+                for i in range(0, 100):
                     pyautogui.press("down")
                     pyautogui.press("down")
                     pyautogui.press("right")
@@ -211,7 +296,7 @@ def abrir_notepad():
 def pega_quantidade():
 
 #CONTROLA QUANTIDADEE+++++++++++++++++++++++++++++++++++
-    for i in range(0, 3):
+    for i in range(0, 30):
         if i == 0:        
             pyautogui.press('tab')
             pyautogui.press("enter")
@@ -272,5 +357,12 @@ while True:
         automate_browser(url)
         abrir_urls()
         abrir_links_finais()
+        organiza_pasta.organizar_pastas()
+        time.sleep(8)
+        pyautogui.hotkey("alt","tab")
+        pyautogui.hotkey("ctrl","a")
+        pyautogui.write("************SOFTWARE FINALIZADO***************")
+        pyautogui.press("enter")
+        pyautogui.write("-rafael é fera mesmo.")
 
 window.close()

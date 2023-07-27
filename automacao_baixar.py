@@ -54,6 +54,3 @@ def download_videos():
         print("Arquivo videos_url.txt não encontrado.")
     except Exception as e:
         print("Erro ao baixar os vídeos:", e)
-
-# Chamada da função para criar a pasta Pasta_videos_baixados e fazer o download dos vídeos
-download_videos()

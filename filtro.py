@@ -103,4 +103,3 @@ def filtro_txt2():
         print("Arquivo automacao.txt não encontrado.")
     except Exception as e:
         print("Erro ao processar o arquivo automacao.txt:", e)
-
